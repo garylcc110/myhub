@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.itcast.project2.dao.mapper.SCustMapper">
+
+	<select id="findCustAndUser" resultType="SCustQuery">
+		SELECT
+		s_cust.cid,s_cust.cust_name,s_cust.cust_type,s_cust.cust_phone,s_cust.cust_address,s_user.nickname
+		FROM s_cust,s_user
+		WHERE s_cust.cust_link_user=s_user.uid;
+	</select>
+	<delete id="deleteCustById" parameterType="int">
+		DELETE
+		FROM
+		s_cust
+		WHERE
+		s_cust.cid= #{cid}
+	</delete>
+	<insert id="insertCust" parameterType="cn.itcast.project2.pojo.SCust">
+		<selectKey keyProperty="cid" resultType="int" order="AFTER">
+			select
+			LAST_INSERT_ID()
+		</selectKey>
+		INSERT INTO s_cust (cust_address ,cust_name ,cust_phone,cust_type
+		,cust_link_user) VALUES
+		(#{cust_address},#{cust_name},#{cust_phone},#{cust_type},#{cust_link_user})
+	</insert>
+
+	<sql id="cust_query">
+		<where>
+
+			<if test="cust_name!=null and cust_name!=''">
+				AND s_cust.cust_name LIKE '%${cust_name}%'
+			</if>
+			<if test="cust_type!=null and cust_type!=''">
+				AND s_cust.cust_type LIKE '%${cust_type}%'
+			</if>
+
+		</where>
+	</sql>
+
+	<select id="queryByCondation" parameterType="SCustQuery"
+		resultType="SCustQuery">
+		SELECT
+		s_cust.cid,s_cust.cust_name,s_cust.cust_type,s_cust.cust_phone,s_cust.cust_address,s_user.nickname
+		FROM s_cust
+		LEFT JOIN s_user ON s_cust.cust_link_user=s_user.uid
+		<include refid="cust_query" />
+
+	</select>
+
+</mapper>
